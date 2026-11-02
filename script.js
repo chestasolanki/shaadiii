@@ -26,6 +26,8 @@ document.querySelector('#replay').addEventListener('click', () => {
   document.body.classList.remove('unveiled');
   document.body.classList.add('locked');
   intro.classList.remove('done','opened');
+  revealed = false; canvas.style.pointerEvents = ''; paintScratch();
+  document.querySelector('#reveal-button').textContent = 'Tap to reveal';
   openButton.focus();
 });
 const canvas = document.querySelector('#scratch');
@@ -49,7 +51,24 @@ paintScratch();
 let drawing=false,last=null,revealed=false;
 function position(event){const rect=canvas.getBoundingClientRect();return {x:(event.clientX-rect.left)*300/rect.width,y:(event.clientY-rect.top)*270/rect.height}}
 function scratch(event){if(!drawing || revealed)return;const pt=position(event);ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=42;ctx.beginPath();ctx.moveTo(last?last.x:pt.x,last?last.y:pt.y);ctx.lineTo(pt.x,pt.y);ctx.stroke();ctx.restore();last=pt}
-function reveal(){if(revealed)return;revealed=true;ctx.clearRect(0,0,300,270);canvas.style.pointerEvents='none';document.querySelector('#reveal-button').textContent='Date revealed ♥';}
+function celebrate() {
+  if (prefersReducedMotion.matches) return;
+  const burst = document.createElement('div');
+  burst.className = 'celebration';
+  burst.setAttribute('aria-hidden', 'true');
+  const colors = ['#d1ad67', '#f1d7b2', '#bd8183', '#f8f0df', '#71866b'];
+  for (let i = 0; i < 48; i++) {
+    const piece = document.createElement('span');
+    piece.style.setProperty('--x', (Math.random() * 100).toFixed(1) + '%');
+    piece.style.setProperty('--drift', (Math.random() * 160 - 80).toFixed(0) + 'px');
+    piece.style.setProperty('--delay', (Math.random() * .45).toFixed(2) + 's');
+    piece.style.setProperty('--color', colors[i % colors.length]);
+    burst.appendChild(piece);
+  }
+  document.body.appendChild(burst);
+  setTimeout(() => burst.remove(), 3200);
+}
+function reveal(){if(revealed)return;revealed=true;ctx.clearRect(0,0,300,270);canvas.style.pointerEvents='none';document.querySelector('#reveal-button').textContent='Date revealed ♥';celebrate();}
 canvas.addEventListener('pointerdown',event=>{drawing=true;last=null;canvas.setPointerCapture(event.pointerId);scratch(event)});
 canvas.addEventListener('pointermove',scratch);
 function finish(){if(!drawing)return;drawing=false;last=null;const pixels=ctx.getImageData(0,0,300,270).data;let cleared=0,total=0;for(let y=40;y<210;y+=6){for(let x=35;x<265;x+=6){if(ctx.isPointInPath(heartPath(),x,y)){total++;if(pixels[(y*300+x)*4+3]<80)cleared++}}}if(cleared/total>.42)reveal()}
@@ -61,7 +80,7 @@ update();setInterval(update,1000);
 
 // Reveal invitation details as they enter the viewport; leave them visible afterwards.
 if ('IntersectionObserver' in window && !prefersReducedMotion.matches) {
-  const details = document.querySelectorAll('.linen .section h2, .linen .section .heart-divider, .linen .section-symbol, .welcome-copy, .wedding-photo, .scratch-wrap, .text-button, .section .pill, .countdown, .date-heading, .events article, .venue h3, .venue p, .section .map, .gifts p, .closing-names, .family-label, .family-names');
+  const details = document.querySelectorAll('.linen .section h2, .linen .section .heart-divider, .linen .section-symbol, .welcome-copy, .wedding-photo, .scratch-wrap, .text-button, .section .pill, .countdown, .date-heading, .events article, .venue h3, .venue p, .section .map, .closing-names, .family-label, .family-names');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
