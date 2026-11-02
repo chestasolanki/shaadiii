@@ -1,37 +1,61 @@
-const opening = document.querySelector('#opening');
-const openButton = document.querySelector('#open');
+const intro = document.querySelector('#intro');
 const main = document.querySelector('#invitation');
-function setClosed(closed, focus = true) {
-  document.body.classList.toggle('locked', closed);
-  opening.classList.toggle('opened', !closed);
-  main.inert = closed;
-  if (closed) { window.scrollTo({top: 0, behavior: 'instant'}); if (focus) openButton.focus(); }
-  else { document.querySelector('#home').focus({preventScroll: true}); }
+const openButton = document.querySelector('#open');
+const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let introTimer;
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo({top:0,behavior:'instant'});
+function openInvitation() {
+  if (intro.classList.contains('opened')) return;
+  window.scrollTo({top:0,behavior:'instant'});
+  intro.classList.add('opened');
+  const duration = prefersReducedMotion.matches ? 0 : 3000;
+  introTimer = setTimeout(() => {
+    intro.classList.add('done');
+    document.body.classList.remove('locked');
+    document.body.classList.add('unveiled');
+    main.inert = false;
+    document.querySelector('#home').focus({preventScroll:true});
+  }, duration);
 }
-setClosed(true, false);
-openButton.addEventListener('click', () => setClosed(false));
-function revealDate() {
-  const heart = document.querySelector('#scratch');
-  heart.classList.add('is-revealed');
-  heart.setAttribute('aria-label', 'Wedding date: 21 November 2026, Saturday at 6 PM');
-  document.querySelector('#scratch-title').textContent = '21 November 2026';
-  document.querySelector('#scratch-sub').textContent = 'Saturday · 6:00 PM';
-  document.querySelector('#reveal-date').textContent = 'Date revealed  ✦';
+openButton.addEventListener('click', openInvitation);
+document.querySelector('#replay').addEventListener('click', () => {
+  clearTimeout(introTimer);
+  window.scrollTo({top:0,behavior:'instant'});
+  main.inert = true;
+  document.body.classList.remove('unveiled');
+  document.body.classList.add('locked');
+  intro.classList.remove('done','opened');
+  openButton.focus();
+});
+const canvas = document.querySelector('#scratch');
+const ctx = canvas.getContext('2d', {willReadFrequently:true});
+function heartPath() {
+  const p = new Path2D();
+  p.moveTo(150,258);p.bezierCurveTo(130,243,8,163,8,92);p.bezierCurveTo(8,25,93,3,150,69);p.bezierCurveTo(207,3,292,25,292,92);p.bezierCurveTo(292,163,170,243,150,258);p.closePath();return p;
 }
-document.querySelector('#scratch').addEventListener('click', revealDate);
-document.querySelector('#reveal-date').addEventListener('click', revealDate);
-document.querySelector('#replay').addEventListener('click', () => setClosed(true));
-const target = new Date('2026-11-21T18:00:00+05:30');
-function update() {
-  const delta = Math.max(0, target - Date.now());
-  const values = [Math.floor(delta / 86400000), Math.floor(delta / 3600000) % 24, Math.floor(delta / 60000) % 60, Math.floor(delta / 1000) % 60];
-  ['days', 'hours', 'minutes', 'seconds'].forEach((id, i) => document.getElementById(id).textContent = String(values[i]).padStart(2, '0'));
-  document.querySelector('#countdown-note').textContent = delta === 0 ? 'The celebration has arrived ♥' : '';
+function paintScratch() {
+  ctx.clearRect(0,0,300,270);
+  const path=heartPath();
+  const gradient=ctx.createLinearGradient(0,0,300,270);
+  gradient.addColorStop(0,'#9fa996');gradient.addColorStop(.5,'#6d806c');gradient.addColorStop(1,'#536b57');
+  ctx.fillStyle=gradient;ctx.fill(path);ctx.strokeStyle='#778870';ctx.lineWidth=1.5;ctx.stroke(path);
+  ctx.save();ctx.clip(path);
+  for(let i=0;i<450;i++){const x=(i*71)%300,y=(i*113)%270;ctx.fillStyle=i%7===0?'rgba(255,255,240,.5)':'rgba(255,255,240,.14)';ctx.fillRect(x,y,i%7===0?2:1,i%7===0?2:1)}
+  ctx.restore();
+  ctx.fillStyle='#fffdf0';ctx.textAlign='center';ctx.font='600 16px Georgia';ctx.fillText('SCRATCH HERE',150,123);ctx.font='italic 15px Georgia';ctx.fillText('to reveal a special date',150,148);
 }
-update(); setInterval(update, 1000);
-if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  document.documentElement.classList.add('js-motion');
-  const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }), {threshold: .12});
-  document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
-}
-
+paintScratch();
+let drawing=false,last=null,revealed=false;
+function position(event){const rect=canvas.getBoundingClientRect();return {x:(event.clientX-rect.left)*300/rect.width,y:(event.clientY-rect.top)*270/rect.height}}
+function scratch(event){if(!drawing || revealed)return;const pt=position(event);ctx.save();ctx.globalCompositeOperation='destination-out';ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=42;ctx.beginPath();ctx.moveTo(last?last.x:pt.x,last?last.y:pt.y);ctx.lineTo(pt.x,pt.y);ctx.stroke();ctx.restore();last=pt}
+function reveal(){if(revealed)return;revealed=true;ctx.clearRect(0,0,300,270);canvas.style.pointerEvents='none';document.querySelector('#reveal-button').textContent='Date revealed ♥';}
+canvas.addEventListener('pointerdown',event=>{drawing=true;last=null;canvas.setPointerCapture(event.pointerId);scratch(event)});
+canvas.addEventListener('pointermove',scratch);
+function finish(){if(!drawing)return;drawing=false;last=null;const pixels=ctx.getImageData(0,0,300,270).data;let cleared=0,total=0;for(let y=40;y<210;y+=6){for(let x=35;x<265;x+=6){if(ctx.isPointInPath(heartPath(),x,y)){total++;if(pixels[(y*300+x)*4+3]<80)cleared++}}}if(cleared/total>.42)reveal()}
+canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);
+document.querySelector('#reveal-button').addEventListener('click',reveal);
+const target=new Date('2026-11-21T18:00:00+05:30');
+function update(){const remaining=Math.max(0,target-Date.now());const values=[Math.floor(remaining/86400000),Math.floor(remaining/3600000)%24,Math.floor(remaining/60000)%60,Math.floor(remaining/1000)%60];['days','hours','minutes','seconds'].forEach((id,i)=>document.getElementById(id).textContent=String(values[i]).padStart(2,'0'));document.querySelector('#countdown-note').textContent=remaining===0?'The celebration has arrived ♥':''}
+update();setInterval(update,1000);
+document.querySelector('#rsvp-form').addEventListener('submit',event=>{event.preventDefault();const form=event.currentTarget;try{localStorage.setItem('wedding-rsvp',JSON.stringify(Object.fromEntries(new FormData(form))));document.querySelector('#form-note').textContent='Saved on this device only. This response has not been sent to the couple.'}catch{document.querySelector('#form-note').textContent='Could not save on this device. Your response has not been sent.'}});
