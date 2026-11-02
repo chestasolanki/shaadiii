@@ -58,4 +58,18 @@ document.querySelector('#reveal-button').addEventListener('click',reveal);
 const target=new Date('2026-11-21T18:00:00+05:30');
 function update(){const remaining=Math.max(0,target-Date.now());const values=[Math.floor(remaining/86400000),Math.floor(remaining/3600000)%24,Math.floor(remaining/60000)%60,Math.floor(remaining/1000)%60];['days','hours','minutes','seconds'].forEach((id,i)=>document.getElementById(id).textContent=String(values[i]).padStart(2,'0'));document.querySelector('#countdown-note').textContent=remaining===0?'The celebration has arrived ♥':''}
 update();setInterval(update,1000);
-document.querySelector('#rsvp-form').addEventListener('submit',event=>{event.preventDefault();const form=event.currentTarget;try{localStorage.setItem('wedding-rsvp',JSON.stringify(Object.fromEntries(new FormData(form))));document.querySelector('#form-note').textContent='Saved on this device only. This response has not been sent to the couple.'}catch{document.querySelector('#form-note').textContent='Could not save on this device. Your response has not been sent.'}});
+
+// Reveal invitation details as they enter the viewport; leave them visible afterwards.
+if ('IntersectionObserver' in window && !prefersReducedMotion.matches) {
+  const details = document.querySelectorAll('.linen .section h2, .linen .section .heart-divider, .linen .section-symbol, .welcome-copy, .wedding-photo, .scratch-wrap, .text-button, .section .pill, .countdown, .date-heading, .events article, .venue h3, .venue p, .section .map, .gifts p, .closing-names, .family-label, .family-names');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.12});
+  details.forEach(element => { element.classList.add('scroll-reveal'); observer.observe(element); });
+  document.documentElement.classList.add('scroll-motion');
+}
