@@ -3,12 +3,52 @@ const main = document.querySelector('#invitation');
 const openButton = document.querySelector('#open');
 const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let introTimer;
+const music = document.querySelector('#wedding-music');
+const musicToggle = document.querySelector('#music-toggle');
+const musicStatus = document.querySelector('#music-status');
+let musicWanted = false, musicRequested = false, musicTimer;
+function updateMusicButton() {
+  const playing = !music.paused;
+  musicToggle.setAttribute('aria-pressed', String(playing));
+  musicToggle.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+}
+function playMusic() {
+  if (!musicWanted) return;
+  music.play().then(() => {
+    if (!musicWanted) music.pause();
+  }).catch(() => {
+    if (!musicWanted) return;
+    musicWanted = false;
+    updateMusicButton();
+    musicStatus.textContent = 'Tap the sound button to play music';
+  });
+}
+music.addEventListener('play', updateMusicButton);
+music.addEventListener('pause', updateMusicButton);
+musicToggle.addEventListener('click', () => {
+  if (musicWanted) {
+    musicWanted = false;
+    clearTimeout(musicTimer);
+    music.pause();
+    updateMusicButton();
+  } else {
+    musicWanted = true;
+    musicStatus.textContent = '';
+    playMusic();
+  }
+});
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 window.scrollTo({top:0,behavior:'instant'});
 function openInvitation() {
   if (intro.classList.contains('opened')) return;
   window.scrollTo({top:0,behavior:'instant'});
   intro.classList.add('opened');
+  if (!musicRequested) {
+    musicRequested = true;
+    musicWanted = true;
+    musicToggle.hidden = false;
+    musicTimer = setTimeout(playMusic, 500);
+  }
   const duration = prefersReducedMotion.matches ? 0 : 3000;
   introTimer = setTimeout(() => {
     intro.classList.add('done');

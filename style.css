@@ -27,3 +27,5 @@
 .celebration span:nth-child(3n){width:8px;height:8px;border-radius:50%}
 @keyframes confetti-fall{0%{opacity:0;transform:translate3d(0,-10px,0) rotate(0)}8%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate3d(var(--drift),105vh,0) rotate(600deg)}}
 @media(prefers-reduced-motion:reduce){.celebration{display:none}}
+
+.music-toggle{position:fixed;z-index:30;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:40px;height:40px;display:grid;place-items:center;padding:10px;border:1px solid #b8a47c;border-radius:50%;background:#f4ead7;color:#40543c;box-shadow:0 3px 12px #26372830;cursor:pointer}.music-toggle[hidden]{display:none}.music-toggle svg{width:20px;height:20px}.music-toggle .music-on,.music-toggle[aria-pressed="true"] .music-off{display:none}.music-toggle[aria-pressed="true"] .music-on{display:block}.music-toggle:focus-visible{outline:2px solid #40543c;outline-offset:3px}.music-status:not(:empty){position:fixed;z-index:30;top:60px;right:12px;max-width:190px;padding:7px 10px;border-radius:8px;background:#f4ead7;color:#40543c;font-size:14px;box-shadow:0 3px 12px #26372830}
