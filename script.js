@@ -47,7 +47,7 @@ function openInvitation() {
     musicRequested = true;
     musicWanted = true;
     musicToggle.hidden = false;
-    musicTimer = setTimeout(playMusic, 500);
+    musicTimer = setTimeout(playMusic, 300);
   }
   const duration = prefersReducedMotion.matches ? 0 : 3000;
   introTimer = setTimeout(() => {
