@@ -2,12 +2,12 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Wedding Invitation//EN
 BEGIN:VEVENT
-UID:anjali-yash-20261121@example.com
-DTSTAMP:20261102T000000Z
-DTSTART:20261121T123000Z
-DTEND:20261121T183000Z
-SUMMARY:Anjali & Yash Pratap Singh Wedding
+UID:prashant-nisha-20261125@example.com
+DTSTAMP:20261105T000000Z
+DTSTART:20261125T113000Z
+DTEND:20261125T183000Z
+SUMMARY:Prashant Bhati & Nisha Wedding
 LOCATION:Village Bhupani, Sector-89, Faridabad
-DESCRIPTION:Reception of Baraat at 6:00 PM; dinner at 7:00 PM.
+DESCRIPTION:Wedding of Prashant Bhati & Nisha. Ghurchari at 4:00 PM, Departure of Baraat at 5:00 PM (From Village Bhupani to Village Kurali). Lagan on Saturday, 21 November 2026 at 2:00 PM (Village Bhupani).
 END:VEVENT
 END:VCALENDAR

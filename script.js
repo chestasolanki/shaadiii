@@ -80,8 +80,8 @@ function paintScratch() {
   ctx.clearRect(0,0,300,270);
   const path=heartPath();
   const gradient=ctx.createLinearGradient(0,0,300,270);
-  gradient.addColorStop(0,'#9fa996');gradient.addColorStop(.5,'#6d806c');gradient.addColorStop(1,'#536b57');
-  ctx.fillStyle=gradient;ctx.fill(path);ctx.strokeStyle='#778870';ctx.lineWidth=1.5;ctx.stroke(path);
+  gradient.addColorStop(0,'#a84353');gradient.addColorStop(.5,'#7d1e2d');gradient.addColorStop(1,'#56101c');
+  ctx.fillStyle=gradient;ctx.fill(path);ctx.strokeStyle='#912c3b';ctx.lineWidth=1.5;ctx.stroke(path);
   ctx.save();ctx.clip(path);
   for(let i=0;i<450;i++){const x=(i*71)%300,y=(i*113)%270;ctx.fillStyle=i%7===0?'rgba(255,255,240,.5)':'rgba(255,255,240,.14)';ctx.fillRect(x,y,i%7===0?2:1,i%7===0?2:1)}
   ctx.restore();
@@ -96,7 +96,7 @@ function celebrate() {
   const burst = document.createElement('div');
   burst.className = 'celebration';
   burst.setAttribute('aria-hidden', 'true');
-  const colors = ['#d1ad67', '#f1d7b2', '#bd8183', '#f8f0df', '#71866b'];
+  const colors = ['#d1ad67', '#f1d7b2', '#721924', '#f8f0df', '#a82c3e', '#e6c280'];
   for (let i = 0; i < 48; i++) {
     const piece = document.createElement('span');
     piece.style.setProperty('--x', (Math.random() * 100).toFixed(1) + '%');
@@ -114,13 +114,13 @@ canvas.addEventListener('pointermove',scratch);
 function finish(){if(!drawing)return;drawing=false;last=null;const pixels=ctx.getImageData(0,0,300,270).data;let cleared=0,total=0;for(let y=40;y<210;y+=6){for(let x=35;x<265;x+=6){if(ctx.isPointInPath(heartPath(),x,y)){total++;if(pixels[(y*300+x)*4+3]<80)cleared++}}}if(cleared/total>.42)reveal()}
 canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);
 document.querySelector('#reveal-button').addEventListener('click',reveal);
-const target=new Date('2026-11-21T18:00:00+05:30');
+const target=new Date('2026-11-25T17:00:00+05:30');
 function update(){const remaining=Math.max(0,target-Date.now());const values=[Math.floor(remaining/86400000),Math.floor(remaining/3600000)%24,Math.floor(remaining/60000)%60,Math.floor(remaining/1000)%60];['days','hours','minutes','seconds'].forEach((id,i)=>document.getElementById(id).textContent=String(values[i]).padStart(2,'0'));document.querySelector('#countdown-note').textContent=remaining===0?'The celebration has arrived ♥':''}
 update();setInterval(update,1000);
 
 // Reveal invitation details as they enter the viewport; leave them visible afterwards.
 if ('IntersectionObserver' in window && !prefersReducedMotion.matches) {
-  const details = document.querySelectorAll('.linen .section h2, .linen .section .heart-divider, .linen .section-symbol, .welcome-copy, .wedding-photo, .scratch-wrap, .text-button, .section .pill, .countdown, .date-heading, .events article, .venue h3, .venue p, .section .map, .closing-names, .family-label, .family-names');
+  const details = document.querySelectorAll('.linen .section h2, .linen .section .heart-divider, .linen .section-symbol, .ganesh-mantra, .welcome-copy, .wedding-photo, .scratch-wrap, .text-button, .section .pill, .countdown, .date-heading, .events article, .venue h3, .venue p, .section .map, .closing-names, .family-label, .family-names');
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
